@@ -2,7 +2,7 @@
 
 export default function ShowServerCofig({ config }){
     
-/*     // Validamos la estructura de la configuracion que traemos por props
+    // Validamos la estructura de la configuracion que traemos por props
 
     if( !config || typeof config.minConnection !== 'number' || typeof config.maxConnection !== 'number' || typeof config.restartAlways !== 'boolean'){
         throw new Error("The server configuration is not valid");
@@ -18,11 +18,13 @@ export default function ShowServerCofig({ config }){
 
     if(config.enviroment === 'live' && !config.SSL ){
         throw new Error("Live servers must have a SSL")
-    } */
+    }
 
 }
 
-ShowServerConfig.propTypes = {
+/* de esta forma me da error el componente
+
+    ShowServerConfig.propTypes = {
     config: PropTypes.shape({
         minConnection: PropTypes.number.isRequired,
         maxConnection: PropTypes.number.isRequired,
@@ -30,4 +32,4 @@ ShowServerConfig.propTypes = {
         environment: PropTypes.oneOf(['dev', 'play', 'live']).isRequired,
         SSL: PropTypes.bool
     }).isRequired
-};
+}; */
