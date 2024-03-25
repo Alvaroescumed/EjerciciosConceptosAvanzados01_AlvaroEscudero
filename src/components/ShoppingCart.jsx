@@ -1,28 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ShoppingCart ({products}){ //añadimos los productos por props
 
     const [cart, setCart] = useState([]);
     const [price, setPrice] = useState(0);
-    const [error, setError] =useState(false)
+    const [error, setError] = useState(false);
 
-  function addProduct(name, price, id){
+    useEffect(()=>{
+        cart.forEach( product =>{
+            setPrice(prevPrice => prevPrice + product.price)
+        })
+    }, [cart])
 
+  function addProduct(name, price, id){  
         // añadir productos al carrito
-        const newProduct = {id: id ,name : name, price: price};
-        setCart([... cart, newProduct]);
 
+        const existingProduct = cart.findIndex(product => product.id === id); //buscamos el id del producto a añadir por si acaso ya se ha añadido con anterioridad
+        
+        if(existingProduct !== -1){
+            const update = [...cart];
+            update[existingProduct].quantity += 1;
+            setCart(update);
+        } else{
+            const newProduct = {id: id ,name : name, price: price, quantity: 1};
+        
+            setCart([... cart, newProduct]);
+    
+        }
+       
     }
 
     function deleteProduct(id){
         // quitar productos del carrito
+
+        const deletedProduct = cart.find(product => product.id === id);
+
+        setPrice(prevPrice => prevPrice - deletedProduct.price * deleteProduct.quantity);
+
+        setCart(cart.filter(product => product.id !== id));
         
-    }
-
-    function showTotalPrice(){
-        // ver precio total del carrito
-        setPrice()
-
     }
 
     function addCode(e){
@@ -56,13 +72,14 @@ export default function ShoppingCart ({products}){ //añadimos los productos por
              <ul>
                 { cart && cart.map(i => (
                     <li key={i.id}>
-                        {i.name} {i.price}€
+                        {i.name} {i.price}€ x{i.quantity}
                         <button onClick={() => deleteProduct(i.id)}>Remove ❌</button>
                     </li>
                 ))}
             </ul>
            <p>TOTAL: {price} €</p>
-           <input type="text" onChange={addCode}></input>
+           <input type="text" onChange={addCode} placeholder="Código de Promoción"></input>
+           { error && <p >El codigo introducido no es valido</p> }
         </div>
     </>
     )
