@@ -1,16 +1,34 @@
 import { useEffect, useState } from "react";
+import useFetch from "../hooks/useFetchs";
+
 
 export default function ShoppingCart ({products}){ //añadimos los productos por props
 
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState(() => {
+        const savedcart = localStorage.getItem("cart");
+        return savedcart ? JSON.parse(savedcart) : []; // al inicializar el carro colocamos el guardado en el JSON
+    });
     const [price, setPrice] = useState(0);
+    const [discount, setDiscount] = useState(1); // Creando una variable discount lo que conseguimos es que si la cesta se modifica el descuento lo multiplique al total de productyos y nos solo ha los añadiodos antes
     const [error, setError] = useState(false);
 
+    
+    //Calculamos el precio total del carro sin descuento
     useEffect(()=>{
+
+        let totalPrice = 0;
+
         cart.forEach( product =>{
-            setPrice(prevPrice => prevPrice + product.price)
+            totalPrice += product.price * product.quantity;
         })
+        
+        setPrice(totalPrice);
     }, [cart])
+
+    //Guarda cada vez que cambiamos el carro
+    useEffect(() => {
+        localStorage.setItem("cart", JSON.stringify(cart));
+    }, [cart]);
 
   function addProduct(name, price, id){  
         // añadir productos al carrito
@@ -35,7 +53,7 @@ export default function ShoppingCart ({products}){ //añadimos los productos por
 
         const deletedProduct = cart.find(product => product.id === id);
 
-        setPrice(prevPrice => prevPrice - deletedProduct.price * deleteProduct.quantity);
+        setPrice(prevPrice => prevPrice - deletedProduct.price * deletedProduct.quantity);
 
         setCart(cart.filter(product => product.id !== id));
         
@@ -46,15 +64,14 @@ export default function ShoppingCart ({products}){ //añadimos los productos por
         const code = e.target.value
 
         if(code === "SAVE10"){
-            setPrice(prevPrice => prevPrice*0.9); 
+            setDiscount(0.9); 
             setError(false);
         } else{
             setError(true);
+            setDiscount(1);
         }
 
     }
-
-    //EXTRA guardar los datos
 
     return (
     <>
@@ -77,9 +94,9 @@ export default function ShoppingCart ({products}){ //añadimos los productos por
                     </li>
                 ))}
             </ul>
-           <p>TOTAL: {price} €</p>
+           <p>TOTAL: {(price * discount).toFixed(2)} €</p>
            <input type="text" onChange={addCode} placeholder="Código de Promoción"></input>
-           { error && <p >El codigo introducido no es valido</p> }
+           { error && <p >El codigo introducido no es valido</p>}
         </div>
     </>
     )
